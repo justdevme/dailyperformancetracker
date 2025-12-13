@@ -4,26 +4,27 @@ import com.thejustdevme.demo.domain.entities.Task;
 import com.thejustdevme.demo.domain.entities.TaskList;
 import com.thejustdevme.demo.domain.entities.TaskPriority;
 import com.thejustdevme.demo.domain.entities.TaskStatus;
+
+import com.thejustdevme.demo.infrastructure.kafka.TaskEventProducer;
 import com.thejustdevme.demo.repositories.TaskListRepository;
 import com.thejustdevme.demo.repositories.TaskRepository;
 import com.thejustdevme.demo.services.TaskService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
     private final TaskListRepository taskListRepository;
+    private final TaskEventProducer taskEventProducer;
 
-    public TaskServiceImpl(TaskRepository taskRepository,  TaskListRepository taskListRepository) {
+    public TaskServiceImpl(TaskRepository taskRepository,  TaskListRepository taskListRepository, TaskEventProducer taskEventProducer) {
         this.taskRepository = taskRepository;
         this.taskListRepository = taskListRepository;
+        this.taskEventProducer = taskEventProducer;
     }
     @Override
     public List<Task> listTasks(UUID taskListId) {
@@ -55,7 +56,14 @@ public class TaskServiceImpl implements TaskService {
                 now,
                 taskList
         );
-        return taskRepository.save(taskToSave);
+        Task savedTask = taskRepository.save(taskToSave);
+        // send event
+        taskEventProducer.send(
+                "TASK_CREATED",
+                Map.of("taskId", savedTask.getId(), "title", savedTask.getTitle()),
+                savedTask.getId().toString()
+        );
+        return savedTask;
     }
 
     @Override
@@ -86,7 +94,12 @@ public class TaskServiceImpl implements TaskService {
         existingTask.setStatus(task.getStatus());
         existingTask.setUpdated(LocalDateTime.now());
 
-        return taskRepository.save(existingTask);
+        Task updatedTask = taskRepository.save(existingTask);
+
+
+        // ---------------------------------------------------------------------
+
+        return updatedTask;
     }
 
     @Override

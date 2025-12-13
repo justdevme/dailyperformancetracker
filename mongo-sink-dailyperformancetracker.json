@@ -1,0 +1,29 @@
+{
+  "name": "mongo-sink-dailytracker",
+  "config": {
+    "connector.class": "com.mongodb.kafka.connect.MongoSinkConnector",
+    "tasks.max": "1",
+
+    "topics": "task-events,focus-events,metrics-events,user-events",
+
+    "connection.uri": "mongodb://root:root123@dpt_mongo:27017/?authSource=admin",
+
+    "database": "dailytracker_mongo",
+
+    "collection": "default_collection",
+
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "key.converter.schemas.enable": "false",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "false",
+
+    "writemodel.strategy": "com.mongodb.kafka.connect.sink.writemodel.strategy.ReplaceOneBusinessKeyStrategy",
+    "max.num.retries": "3",
+    "retries.defer.timeout": "5000",
+
+    "topic.override.task-events.collection":   "tasks",
+    "topic.override.focus-events.collection":  "focus_sessions",
+    "topic.override.metrics-events.collection":"metrics",
+    "topic.override.user-events.collection":   "users"
+  }
+}
