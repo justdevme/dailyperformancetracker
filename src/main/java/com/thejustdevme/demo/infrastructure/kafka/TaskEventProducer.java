@@ -3,6 +3,8 @@ package com.thejustdevme.demo.infrastructure.kafka;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.kafka.core.KafkaTemplate;
@@ -21,18 +23,18 @@ public class TaskEventProducer {
     @Value("${app.kafka.topic}")
     private String topic;
 
-    public void send(String eventType, Object data, String key) {
+    public <T> void send(EventType eventType, String key, T data) {
         try {
-            Map<String, Object> payload = Map.of(
-                    "type", eventType,
-                    "data", data,
-                    "ts", Instant.now().toString()
-            );
+            EventEnvelope<T> envelope = EventEnvelope.<T>builder()
+                            .eventId(UUID.randomUUID().toString())
+                            .type(eventType.name())
+                            .version(1)
+                            .occurredAt(Instant.now())
+                            .key(key)
+                            .data(data)
+                            .build();
 
-            kafkaTemplate
-                    .send(topic, key, objectMapper.writeValueAsString(payload))
-                    .get();
-
+            kafkaTemplate.send(topic, key, objectMapper.writeValueAsString(envelope));
             System.out.println(">>> PRODUCED OK topic=" + topic + " key=" + key);
 
         } catch (Exception e) { // bắt luôn cho giai đoạn test

@@ -5,12 +5,15 @@ import com.thejustdevme.demo.domain.entities.TaskList;
 import com.thejustdevme.demo.domain.entities.TaskPriority;
 import com.thejustdevme.demo.domain.entities.TaskStatus;
 
+import com.thejustdevme.demo.infrastructure.kafka.EventType;
 import com.thejustdevme.demo.infrastructure.kafka.TaskEventProducer;
 import com.thejustdevme.demo.repositories.TaskListRepository;
 import com.thejustdevme.demo.repositories.TaskRepository;
 import com.thejustdevme.demo.services.TaskService;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -59,9 +62,15 @@ public class TaskServiceImpl implements TaskService {
         Task savedTask = taskRepository.save(taskToSave);
         // send event
         taskEventProducer.send(
-                "TASK_CREATED",
-                Map.of("taskId", savedTask.getId(), "title", savedTask.getTitle()),
-                savedTask.getId().toString()
+                EventType.TASK_CREATED,
+                savedTask.getId().toString(),
+                Map.of(
+                        "taskId", savedTask.getId().toString(),
+                        "title", savedTask.getTitle(),
+                        "status", savedTask.getStatus().name(),
+                        "priority", savedTask.getPriority().name(),
+                        "createdAt", savedTask.getCreated().toString()
+                )
         );
         return savedTask;
     }
@@ -85,6 +94,13 @@ public class TaskServiceImpl implements TaskService {
         if (null == task.getStatus()) {
             throw new IllegalArgumentException("Task status is required");
         }
+
+        String oldTitle = task.getTitle();
+        String oldDescription = task.getDescription();
+        LocalDateTime oldDueDate = task.getDueDate();
+        TaskPriority oldTaskPriority = task.getPriority();
+
+
         Task existingTask = taskRepository.findByTaskListIdAndId(taskListId, taskId)
                 .orElseThrow(() -> new IllegalArgumentException("Task list not found"));
         existingTask.setTitle(task.getTitle());
@@ -94,8 +110,31 @@ public class TaskServiceImpl implements TaskService {
         existingTask.setStatus(task.getStatus());
         existingTask.setUpdated(LocalDateTime.now());
 
+
+
         Task updatedTask = taskRepository.save(existingTask);
 
+        taskEventProducer.send(
+                EventType.TASK_UPDATED,
+                updatedTask.getId().toString(),
+                Map.of(
+                        "taskId", updatedTask.getId().toString(),
+                        "taskListId", taskListId.toString(),
+                        "old", Map.of(
+                                "title", oldTitle,
+                                "description", oldDescription,
+                                "dueDate", oldDueDate == null ? "null" : oldDueDate.toString(),
+                                "priority", oldTaskPriority == null ? null : oldTaskPriority.toString()
+                        ),
+                        "new", Map.of(
+                                "title", updatedTask.getTitle(),
+                                "description", updatedTask.getDescription(),
+                                "dueDate", updatedTask.getDueDate() == null ? null : updatedTask.getDueDate().toString(),
+                                "priority", updatedTask.getPriority() == null ? null : updatedTask.getPriority().toString()
+                        ),
+                        "updatedAt",  updatedTask.getUpdated().toString()
+                )
+        );
 
         // ---------------------------------------------------------------------
 
@@ -103,7 +142,21 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+
     public void deleteTask(UUID taskListId, UUID taskId) {
+        String taskListId_temp = taskListId.toString();
+        String taskId_temp = taskId.toString();
+
         taskRepository.deleteByTaskListIdAndId(taskListId, taskId);
+
+        taskEventProducer.send(
+                EventType.TASK_DELETED,
+                taskId_temp.toString(),
+                Map.of(
+                        "taskId", taskId.toString(),
+                        "taskListId", taskListId_temp.toString(),
+                        "deleted", Instant.now().toString()
+                )
+        );
     }
 }
