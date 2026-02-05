@@ -1,0 +1,1016 @@
+.wg-reflection-item {
+  padding: 0;
+  background: transparent;
+  border-radius: 10px;
+  border-left: 3px solid #d4d4d4;
+}
+
+.wg-reflection-input {
+  width: 100%;
+  min-height: 100px;
+  padding: 16px;
+  background: #fafaf9;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #666;
+  font-family: inherit;
+  line-height: 1.6;
+  outline: none;
+  resize: vertical;
+  transition: background 0.2s ease;
+}
+
+.wg-reflection-input:hover {
+  background: #f5f4f2;
+}
+
+.wg-reflection-input:focus {
+  background: #f0efeb;
+}/* ==================== Reset & Base ==================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  background: linear-gradient(135deg, #f8f7f4 0%, #f3f0eb 100%);
+  color: #2c2c2c;
+  line-height: 1.6;
+}
+
+/* ==================== Container ==================== */
+.week-goals-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  min-height: 100vh;
+}
+
+/* ==================== Header ==================== */
+.wg-header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.wg-title {
+  font-size: 42px;
+  font-weight: 300;
+  letter-spacing: -0.5px;
+  color: #1a1a1a;
+}
+
+/* ==================== Tabs ==================== */
+.wg-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 40px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding-bottom: 0;
+}
+
+.wg-tab {
+  padding: 14px 24px;
+  background: none;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: #8b8b8b;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-bottom: 2px solid transparent;
+  position: relative;
+  bottom: -1px;
+}
+
+.wg-tab:hover {
+  color: #2c2c2c;
+}
+
+.wg-tab.active {
+  color: #2c2c2c;
+  border-bottom-color: #2c2c2c;
+}
+
+/* ==================== Main Content ==================== */
+.wg-main {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+/* ==================== Top Section ==================== */
+.wg-top-section {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 30px;
+  align-items: start;
+}
+
+/* Progress Card */
+.wg-progress-card {
+  background: white;
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.wg-progress-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.wg-mascot {
+  font-size: 48px;
+}
+
+.wg-week-title {
+  font-size: 28px;
+  font-weight: 400;
+  color: #1a1a1a;
+}
+
+/* Stats */
+.wg-stats {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 20px;
+  background: #fafaf9;
+  border-radius: 12px;
+}
+
+.wg-stat-item {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wg-stat-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #8b8b8b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.wg-stat-value {
+  font-size: 28px;
+  font-weight: 600;
+  color: #2c2c2c;
+}
+
+.wg-stat-divider {
+  width: 1px;
+  height: 40px;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+/* Progress Circle */
+.wg-progress-circle {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  margin: 0 auto;
+}
+
+.wg-donut {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.wg-donut-bg {
+  fill: none;
+  stroke: #e8e8e8;
+  stroke-width: 18;
+}
+
+.wg-donut-fill {
+  fill: none;
+  stroke: #a8a8a8;
+  stroke-width: 18;
+  stroke-dasharray: calc(var(--percentage) * 2.51) 251.2;
+  transition: stroke-dasharray 0.3s ease;
+}
+
+.wg-percentage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  font-weight: 600;
+  color: #2c2c2c;
+}
+
+/* Priority Box */
+.wg-priority-box {
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.02);
+  height: fit-content;
+}
+
+.wg-priority-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.wg-priority-list {
+  list-style: none;
+}
+
+.wg-priority-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  font-size: 13px;
+  color: #555;
+}
+.wg-reflection-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom: 18px;
+}
+
+.wg-reflection-2col{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.wg-reflection-col{
+  display:flex;
+  flex-direction:column;
+  gap: 12px;
+}
+
+.wg-reflection-col-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 12px;
+}
+
+.wg-reflection-col-title{
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.wg-reflection-add{
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px dashed rgba(255,255,255,0.35);
+  background: rgba(255,255,255,0.08);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 12px;
+  color: #ffffff;
+}
+
+.wg-reflection-add:hover{
+  background: rgba(255,255,255,0.15);
+}
+
+
+.wg-reflection-list{
+  display:flex;
+  flex-direction:column;
+  gap: 12px;
+}
+
+/* mỗi item có textarea + nút delete */
+.wg-reflection-item{
+  position: relative;
+  padding: 0;
+  background: transparent;
+  border-radius: 10px;
+  border-left: 3px solid #d4d4d4;
+}
+
+.wg-reflection-del{
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  opacity: 0.7;
+  font-size: 14px;
+}
+
+.wg-reflection-del:hover{
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* responsive */
+@media (max-width: 1024px) {
+  .wg-reflection-2col{
+    grid-template-columns: 1fr;
+  }
+}
+
+.wg-priority-item:last-child {
+  border-bottom: none;
+}
+.wg-add-task-btn{
+  color: #ffffff;   
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px dashed rgba(0,0,0,0.15);
+  background: rgba(0,0,0,0.02);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.wg-add-task-btn:hover{
+  background: rgba(0,0,0,0.05);
+}
+
+/* ==================== Reflection Section ==================== */
+.wg-reflection-section {
+  background: white;
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+.wg-reflection-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 25px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.wg-reflection-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.wg-reflection-item {
+  padding: 16px;
+  background: #fafaf9;
+  border-radius: 10px;
+  border-left: 3px solid #d4d4d4;
+}
+
+.wg-reflection-item p {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.6;
+}
+
+/* ==================== Calendar ==================== */
+.wg-calendar {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 20px;
+  overflow-x: auto;
+}
+
+.wg-day-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+}
+
+.wg-day-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.05);
+}
+
+.wg-day-header {
+  padding: 20px;
+  background: linear-gradient(135deg, #fafaf9 0%, #f5f4f2 100%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.wg-day-emoji {
+  font-size: 28px;
+}
+
+.wg-day-info {
+  flex: 1;
+}
+
+.wg-day-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 4px;
+}
+
+.wg-day-date {
+  font-size: 12px;
+  color: #8b8b8b;
+}
+
+/* Day Tasks */
+.wg-day-tasks {
+  padding: 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.wg-task-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wg-task-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.wg-task-item label {
+  cursor: pointer;
+  color: #555;
+  flex: 1;
+}
+
+.wg-task-item span.completed {
+  text-decoration: line-through;
+  color: #bbb;
+}
+
+/* Day Note */
+.wg-day-note {
+  width: 100%;
+  min-height: 80px;
+  padding: 16px;
+  border: none;
+  background: #fafaf9;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  font-family: inherit;
+  font-size: 12px;
+  color: #666;
+  resize: vertical;
+  outline: none;
+  transition: background 0.2s ease;
+}
+
+.wg-day-note::placeholder {
+  color: #bbb;
+}
+
+.wg-day-note:focus {
+  background: #f0efeb;
+}
+
+/* ==================== Checkbox ==================== */
+.wg-checkbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #2c2c2c;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.wg-checkbox:hover {
+  transform: scale(1.1);
+}
+
+/* ==================== Task Input ==================== */
+.wg-task-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  font-size: 13px;
+  color: #555;
+  outline: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.wg-task-input:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.wg-task-input:focus {
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* ==================== Priority Input ==================== */
+.wg-priority-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  font-size: 13px;
+  color: #555;
+  outline: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+  font-family: inherit;
+}
+
+.wg-priority-input:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.wg-priority-input:focus {
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* ==================== Dashboard ==================== */
+.wg-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.wg-dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.wg-dashboard-stat {
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.wg-dashboard-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #8b8b8b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.wg-dashboard-value {
+  font-size: 36px;
+  font-weight: 600;
+  color: #2c2c2c;
+}
+
+.wg-dashboard-unit {
+  font-size: 14px;
+  color: #8b8b8b;
+}
+
+/* Chart */
+.wg-dashboard-chart {
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+.wg-dashboard-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 25px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.wg-chart-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  height: 300px;
+  gap: 20px;
+}
+
+.wg-chart-bar-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.wg-chart-bar-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #2c2c2c;
+  order: 3;
+}
+
+.wg-chart-bar-percentage {
+  font-size: 12px;
+  font-weight: 600;
+  color: #8b8b8b;
+  order: 1;
+}
+
+.wg-chart-bar-background {
+  width: 60px;
+  height: 250px;
+  background: #e8e8e8;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column-reverse;
+  order: 2;
+}
+
+.wg-chart-bar-fill {
+  background: linear-gradient(180deg, #a8a8a8 0%, #8b8b8b 100%);
+  border-radius: 8px;
+  transition: height 0.3s ease;
+}
+
+/* Details */
+.wg-dashboard-details {
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+.wg-details-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.wg-detail-card {
+  background: #fafaf9;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.wg-detail-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2c2c2c;
+  margin-bottom: 15px;
+}
+
+.wg-detail-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+
+.wg-detail-row:last-child {
+  margin-bottom: 0;
+}
+
+.wg-detail-label {
+  color: #8b8b8b;
+}
+
+.wg-detail-value {
+  font-weight: 600;
+  color: #2c2c2c;
+}
+@media (max-width: 1024px) {
+  .wg-top-section {
+    grid-template-columns: 1fr;
+  }
+
+  .wg-reflection-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wg-calendar {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .wg-details-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .week-goals-container {
+    padding: 20px 12px;
+  }
+
+  .wg-header {
+    margin-bottom: 30px;
+  }
+
+  .wg-title {
+    font-size: 28px;
+  }
+
+  .wg-progress-card {
+    padding: 24px;
+  }
+
+  .wg-calendar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .wg-stats {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .wg-stat-divider {
+    display: none;
+  }
+}
+
+/* ==================== DARK THEME OVERRIDE (paste at end) ==================== */
+:root {
+  --bg-0: #0a0a0f;
+  --bg-1: #1a1a2e;
+  --bg-2: #16213e;
+
+  --glass: rgba(30, 30, 46, 0.45);
+  --glass-2: rgba(45, 45, 60, 0.55);
+  --stroke: rgba(255, 255, 255, 0.10);
+  --stroke-2: rgba(255, 255, 255, 0.08);
+
+  --text: rgba(255, 255, 255, 0.92);
+  --muted: rgba(255, 255, 255, 0.60);
+  --muted-2: rgba(255, 255, 255, 0.40);
+
+  --blue: #3b82f6;
+  --violet: #8b5cf6;
+  --pink: #ec4899;
+  --green: #10b981;
+
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+
+/* Background like layout */
+body {
+  background: linear-gradient(135deg, var(--bg-0) 0%, var(--bg-1) 50%, var(--bg-2) 100%) !important;
+  color: var(--text);
+  position: relative;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
+  top: -150px;
+  right: -150px;
+  border-radius: 50%;
+  animation: wgFloat 8s ease-in-out infinite;
+  z-index: 0;
+  pointer-events: none;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.10) 0%, transparent 70%);
+  bottom: -100px;
+  left: -100px;
+  border-radius: 50%;
+  animation: wgFloat 10s ease-in-out infinite reverse;
+  z-index: 0;
+  pointer-events: none;
+}
+
+@keyframes wgFloat {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-30px) rotate(5deg); }
+}
+
+/* Container sits above blobs */
+.week-goals-container,
+.wg-main,
+.wg-dashboard {
+  position: relative;
+  z-index: 1;
+}
+
+/* Header */
+.wg-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.wg-title {
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--blue) 0%, var(--violet) 50%, var(--pink) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Tabs */
+.wg-tabs {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.wg-tab {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.wg-tab:hover {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.wg-tab.active {
+  color: rgba(255, 255, 255, 0.92);
+  border-bottom-color: rgba(255, 255, 255, 0.8);
+}
+
+/* Cards -> glass */
+.wg-progress-card,
+.wg-priority-box,
+.wg-reflection-section,
+.wg-day-card,
+.wg-dashboard-stat,
+.wg-dashboard-chart,
+.wg-dashboard-details {
+  background: var(--glass) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--stroke) !important;
+  box-shadow: var(--shadow) !important;
+}
+
+.wg-day-card:hover,
+.wg-progress-card:hover,
+.wg-priority-box:hover,
+.wg-reflection-section:hover,
+.wg-dashboard-stat:hover,
+.wg-dashboard-chart:hover,
+.wg-dashboard-details:hover {
+  border-color: rgba(59, 130, 246, 0.35) !important;
+  box-shadow: 0 16px 48px rgba(59, 130, 246, 0.18) !important;
+}
+
+/* Text colors */
+.wg-week-title,
+.wg-day-name,
+.wg-detail-title,
+.wg-dashboard-title,
+.wg-priority-title,
+.wg-reflection-title,
+.wg-chart-bar-label {
+  color: var(--text) !important;
+}
+
+.wg-stat-label,
+.wg-day-date,
+.wg-dashboard-label,
+.wg-dashboard-unit,
+.wg-detail-label,
+.wg-chart-bar-percentage {
+  color: var(--muted) !important;
+}
+
+.wg-stat-value,
+.wg-dashboard-value,
+.wg-detail-value {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* Inner blocks */
+.wg-stats,
+.wg-detail-card,
+.wg-reflection-item,
+.wg-day-header,
+.wg-day-note,
+.wg-chart-bar-background {
+  background: rgba(45, 45, 60, 0.45) !important;
+  border: 1px solid var(--stroke-2);
+}
+
+.wg-day-header {
+  background: rgba(30, 30, 46, 0.55) !important;
+}
+
+/* Divider */
+.wg-stat-divider {
+  background: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Progress donut */
+.wg-donut-bg {
+  stroke: rgba(255, 255, 255, 0.12) !important;
+}
+
+.wg-donut-fill {
+  stroke: var(--blue) !important;
+  filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.35));
+}
+
+/* Checkbox accent */
+.wg-checkbox {
+  accent-color: var(--blue) !important;
+}
+.wg-checkbox:checked {
+  accent-color: var(--green) !important;
+}
+
+/* Inputs (task/priority) */
+.wg-task-input,
+.wg-priority-input {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.wg-task-input:hover,
+.wg-priority-input:hover {
+  background: rgba(59, 130, 246, 0.12) !important;
+}
+
+.wg-task-input:focus,
+.wg-priority-input:focus {
+  background: rgba(59, 130, 246, 0.16) !important;
+  border: 1px solid rgba(59, 130, 246, 0.35) !important;
+}
+
+/* Notes + reflection textarea */
+.wg-day-note,
+.wg-reflection-input {
+  color: rgba(255, 255, 255, 0.88) !important;
+  background: rgba(45, 45, 60, 0.55) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.wg-day-note::placeholder,
+.wg-reflection-input::placeholder {
+  color: rgba(255, 255, 255, 0.35) !important;
+}
+
+.wg-day-note:focus,
+.wg-reflection-input:focus {
+  background: rgba(59, 130, 246, 0.14) !important;
+  border-color: rgba(59, 130, 246, 0.35) !important;
+}
+
+/* Task completed look */
+.wg-task-input[style*="line-through"] {
+  color: rgba(255, 255, 255, 0.45) !important;
+}
+
+/* Dashboard chart fill -> gradient like sample */
+.wg-chart-bar-fill {
+  background: linear-gradient(180deg, var(--blue) 0%, var(--violet) 60%, rgba(255,255,255,0.35) 140%) !important;
+}
+
+/* Calendar horizontal scroll bar (optional) */
+.wg-calendar::-webkit-scrollbar {
+  height: 10px;
+}
+.wg-calendar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+.wg-calendar::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, var(--blue), var(--violet));
+  border-radius: 10px;
+}

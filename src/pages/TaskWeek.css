@@ -570,6 +570,10 @@
   transition: all 0.3s ease;
   animation: archiveSlide 0.4s ease-out;
 }
+.archive-item .delete-btn {
+  opacity: 1;
+}
+
 
 @keyframes archiveSlide {
   from {

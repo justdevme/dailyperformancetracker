@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useMemo, useState } from "react";
 import "./TaskWeek.css";
 import Sidebar from "../components/Sidebar";
 import AddTaskModal from "../components/AddTaskModal";
+import { apiFetch } from "./api.js";
 import {
-  LineChart,
-  Line,
   CartesianGrid,
   XAxis,
   YAxis,
@@ -17,134 +15,115 @@ import {
   AreaChart,
   Area,
 } from "recharts";
-import {
-  getTaskLists,
-  createTaskList,
-  getTasksInList,
-  createTaskInList,
-  updateTaskInList,
-  deleteTaskInList,
-} from "../apis/taskService";
+
+// ====== Helpers ======
+const uuid = () => (crypto?.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()));
+
+const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
 export default function TaskWeek() {
-  const navigate = useNavigate();
-  const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+  // khai báo dữ liệu
+  // ====== Habits (Library) ======
+  const [habitsLibrary, setHabitsLibrary] = useState([
+    // demo data (bạn có thể xóa)
+    { id: uuid(), title: "Drink 2L water", description: "", priority: "MEDIUM", active: true },
+    { id: uuid(), title: "Read 20 minutes", description: "", priority: "LOW", active: true },
+  ]);
 
-  const [taskLists, setTaskLists] = useState([]);
-  const [tasksByList, setTasksByList] = useState({});
-  const [loading, setLoading] = useState(true);
+  // ====== Entries per day (Tracking) ======
+  // tasksByList[day] = list entries for that day
+  const [tasksByList, setTasksByList] = useState(() => {
+    // init entries from demo habits
+    const init = {};
+    DAYS.forEach((day) => (init[day] = []));
+    // auto insert demo habits
+    const demoHabits = [
+      { id: uuid(), title: "Drink 2L water", priority: "MEDIUM" },
+      { id: uuid(), title: "Read 20 minutes", priority: "LOW" },
+    ];
+   
+    return init;
+  });
+  // khai báo dữ liệu
+  const [loading] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [selectedDay, setSelectedDay] = useState("");
 
-  // 🔹 Load tất cả task lists + tasks trong tuần
-  useEffect(() => {
-    const loadAll = async () => {
-      try {
-        const lists = await getTaskLists();
-        setTaskLists(lists);
+  // ====== Actions ====== Thao tác với dữ liệu
+  const openAddHabitModal = () => setShowModal(true);
 
-        const tasksPromises = lists.map((list) =>
-          getTasksInList(list.id).then((tasks) => ({
-            id: list.id,
-            title: list.title,
-            tasks,
-          }))
-        );
-
-        const result = await Promise.all(tasksPromises);
-        const tasksMap = {};
-        result.forEach((r) => {
-          tasksMap[r.title] = r.tasks;
-        });
-        setTasksByList(tasksMap);
-      } catch (err) {
-        console.error("Error loading:", err);
-      } finally {
-        setLoading(false);
-      }
+  // Add habit to library + auto insert entries into all days
+  const handleSubmitHabit = async (data) => {
+    const habit = {
+      id: uuid(),
+      title: data.title?.trim() || "New habit",
+      description: data.description || "",
+      priority: data.priority || "MEDIUM",
+      active: true,
     };
 
-    loadAll();
-  }, []);
+    setHabitsLibrary((prev) => [...prev, habit]);
 
-  const handleAddTask = (day) => {
-    setSelectedDay(day);
-    setShowModal(true);
-  };
-
-  const handleSubmitTask = async (data) => {
-    try {
-      let list = taskLists.find((l) => l.title === selectedDay);
-
-      if (!list) {
-        const created = await createTaskList({
-          title: selectedDay,
-          description: `Tasks for ${selectedDay}`,
-        });
-
-        list = created;
-        setTaskLists([...taskLists, created]);
-      }
-
-      const newTask = await createTaskInList(list.id, {
-        title: data.title,
-        description: data.description,
-        dueDate: data.dueDate || null,
-        status: "OPEN",
-        priority: data.priority,
+    setTasksByList((prev) => { // tự động insert vào các thứ trong tuần
+      const next = { ...prev };
+      DAYS.forEach((day) => {
+        const entry = {
+          id: uuid(),
+          habitId: habit.id,
+          title: habit.title,
+          priority: habit.priority,
+          status: "OPEN", // OPEN / CLOSED
+        };
+        next[day] = [...(next[day] || []), entry];
       });
+      return next;
+    });
 
-      setTasksByList((prev) => ({
-        ...prev,
-        [selectedDay]: [...(prev[selectedDay] || []), newTask],
-      }));
-
-      setShowModal(false);
-    } catch (err) {
-      console.error("Create Task Error:", err.response?.data || err.message);
-    }
+    setShowModal(false);
   };
 
-  const handleCompleteTask = async (day, task) => {
-    try {
-      const list = taskLists.find((l) => l.title === day);
-      if (!list) return console.error("TaskList not found for day", day);
+  // Toggle completion for a specific day entry
+  const handleToggleHabitEntry = (day, entry) => {
+    const nextStatus = entry.status === "CLOSED" ? "OPEN" : "CLOSED";
+    setTasksByList((prev) => ({
+      ...prev,
+      [day]: (prev[day] || []).map((t) => (t.id === entry.id ? { ...t, status: nextStatus } : t)),
+    }));
+  };
 
-      const updated = await updateTaskInList(list.id, task.id, {
-        ...task,
-        status: "CLOSED",
+  // Remove habit template + remove all entries across days
+  const handleDeleteHabitFromLibrary = (habitId) => {
+    setHabitsLibrary((prev) => prev.filter((h) => h.id !== habitId));
+    setTasksByList((prev) => {
+      const next = { ...prev };
+      DAYS.forEach((day) => {
+        next[day] = (next[day] || []).filter((e) => e.habitId !== habitId);
       });
-
-      setTasksByList((prev) => ({
-        ...prev,
-        [day]: prev[day].map((t) => (t.id === task.id ? updated : t)),
-      }));
-    } catch (err) {
-      console.error("Error completing task:", err.response?.data || err.message);
-    }
+      return next;
+    });
   };
 
-  const handleDeleteTask = async (day, taskId) => {
-    try {
-      const list = taskLists.find((l) => l.title === day);
-      if (!list) return;
+  // ====== Analytics ======
+  const chartData = useMemo(() => {
+    return DAYS.map((day) => {
+      const entries = tasksByList?.[day] || [];
+      const done = entries.filter((e) => e.status === "CLOSED").length;
+      const open = entries.filter((e) => e.status === "OPEN").length;
+      const total = entries.length;
+      return { day: day.substring(0, 3), completed: done, pending: open, total };
+    });
+  }, [tasksByList]);
 
-      await deleteTaskInList(list.id, taskId);
-      setTasksByList((prev) => ({
-        ...prev,
-        [day]: prev[day].filter((t) => t.id !== taskId),
-      }));
-    } catch (err) {
-      console.error("Error deleting task:", err);
-    }
-  };
+  const totalEntries = useMemo(() => Object.values(tasksByList).flat().length, [tasksByList]);
+  const completedEntries = useMemo(
+    () => Object.values(tasksByList).flat().filter((e) => e.status === "CLOSED").length,
+    [tasksByList]
+  );
+  const completionRate = totalEntries > 0 ? ((completedEntries / totalEntries) * 100).toFixed(0) : 0;
 
-  const handleTaskClick = (day, task) => {
-    const list = taskLists.find((l) => l.title === day);
-    if (list) {
-      navigate(`/task/${list.id}/${task.id}`);
-    }
-  };
+  const pieData = [
+    { name: "Completed", value: completedEntries, color: "#10b981" },
+    { name: "Pending", value: Math.max(0, totalEntries - completedEntries), color: "#3b82f6" },
+  ];
 
   if (loading) {
     return (
@@ -153,40 +132,12 @@ export default function TaskWeek() {
         <div className="main">
           <div className="loading-container">
             <div className="loading-spinner"></div>
-            <p>Loading your tasks...</p>
+            <p>Loading your habits...</p>
           </div>
         </div>
       </div>
     );
   }
-
-  // 🔹 Dữ liệu cho biểu đồ
-  const chartData = days.map((day) => {
-    const tasks = tasksByList?.[day] || [];
-    const closed = tasks.filter((t) => t.status === "CLOSED").length;
-    const open = tasks.filter((t) => t.status === "OPEN").length;
-    const total = tasks.length;
-    return { day: day.substring(0, 3), completed: closed, pending: open, total };
-  });
-
-  const totalTasks = Object.values(tasksByList).flat().length;
-  const completedTasks = Object.values(tasksByList)
-    .flat()
-    .filter((t) => t.status === "CLOSED").length;
-  const completionRate = totalTasks > 0 ? ((completedTasks / totalTasks) * 100).toFixed(0) : 0;
-
-  const pieData = [
-    {
-      name: "Completed",
-      value: completedTasks,
-      color: "#10b981",
-    },
-    {
-      name: "Pending",
-      value: totalTasks - completedTasks,
-      color: "#3b82f6",
-    },
-  ];
 
   return (
     <div className="layout">
@@ -196,17 +147,18 @@ export default function TaskWeek() {
           {/* Header Section */}
           <div className="taskweek-header">
             <div className="header-content">
-              <h1 className="page-title">Weekly Tasks</h1>
-              <p className="page-subtitle">Plan and track your week efficiently</p>
+              <h1 className="page-title">Habit Tracker</h1>
+              <p className="page-subtitle">Add habits in Library → track them daily (Mon–Fri)</p>
             </div>
+
             <div className="header-stats">
               <div className="stat-badge">
-                <span className="stat-value">{totalTasks}</span>
-                <span className="stat-label">Total Tasks</span>
+                <span className="stat-value">{habitsLibrary.length}</span>
+                <span className="stat-label">Habits</span>
               </div>
               <div className="stat-badge success">
-                <span className="stat-value">{completedTasks}</span>
-                <span className="stat-label">Completed</span>
+                <span className="stat-value">{completedEntries}</span>
+                <span className="stat-label">Done</span>
               </div>
               <div className="stat-badge primary">
                 <span className="stat-value">{completionRate}%</span>
@@ -215,134 +167,129 @@ export default function TaskWeek() {
             </div>
           </div>
 
-          {/* Taskboard */}
+          {/* Board */}
           <div className="taskboard">
-            {days.map((day, index) => {
-              const tasks = tasksByList[day] || [];
-              const dayCompleted = tasks.filter((t) => t.status === "CLOSED").length;
-              const dayTotal = tasks.length;
-              const dayProgress = dayTotal > 0 ? (dayCompleted / dayTotal) * 100 : 0;
+            {DAYS.map((day, index) => {
+              const entries = tasksByList[day] || [];
+              const dayDone = entries.filter((e) => e.status === "CLOSED").length;
+              const dayTotal = entries.length;
+              const dayProgress = dayTotal > 0 ? (dayDone / dayTotal) * 100 : 0;
 
               return (
                 <div key={day} className="task-column" style={{ animationDelay: `${index * 0.1}s` }}>
                   <div className="column-header">
                     <h3>{day}</h3>
                     <div className="progress-indicator">
-                      <span className="progress-text">{dayCompleted}/{dayTotal}</span>
+                      <span className="progress-text">
+                        {dayDone}/{dayTotal}
+                      </span>
                       <div className="progress-bar">
-                        <div 
-                          className="progress-fill" 
-                          style={{ width: `${dayProgress}%` }}
-                        ></div>
+                        <div className="progress-fill" style={{ width: `${dayProgress}%` }}></div>
                       </div>
                     </div>
                   </div>
 
                   <div className="tasks">
-                    {tasks.length === 0 ? (
+                    {entries.length === 0 ? (
                       <div className="empty-state">
-                        <span className="empty-icon">📋</span>
-                        <p>No tasks yet</p>
+                        <span className="empty-icon">🌱</span>
+                        <p>No habits yet (add from Library)</p>
                       </div>
                     ) : (
-                      tasks.map((t, taskIndex) => (
+                      entries.map((e, entryIndex) => (
                         <div
-                          key={t.id}
-                          className={`task-item ${t.status === "CLOSED" ? "closed" : ""} priority-${t.priority?.toLowerCase()}`}
-                          style={{ animationDelay: `${taskIndex * 0.05}s` }}
+                          key={e.id}
+                          className={`task-item ${e.status === "CLOSED" ? "closed" : ""} priority-${e.priority?.toLowerCase?.()}`}
+                          style={{ animationDelay: `${entryIndex * 0.05}s` }}
                         >
                           <input
                             type="checkbox"
-                            checked={t.status === "CLOSED"}
-                            onChange={(e) => {
-                              e.stopPropagation();
-                              handleCompleteTask(day, t);
+                            checked={e.status === "CLOSED"}
+                            onChange={(ev) => {
+                              ev.stopPropagation();
+                              handleToggleHabitEntry(day, e);
                             }}
                           />
-                          <div className="task-content" onClick={() => handleTaskClick(day, t)}>
-                            <span className="task-title">{t.title}</span>
-                            {t.priority && (
-                              <span className={`priority-tag ${t.priority.toLowerCase()}`}>
-                                {t.priority}
+
+                          <div className="task-content">
+                            <span className="task-title">{e.title}</span>
+                            {e.priority && (
+                              <span className={`priority-tag ${e.priority.toLowerCase()}`}>
+                                {e.priority}
                               </span>
                             )}
                           </div>
-                          <button
-                            className="delete-btn"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteTask(day, t.id);
-                            }}
-                          >
-                            ✖
-                          </button>
                         </div>
                       ))
                     )}
                   </div>
 
-                  <button className="add-btn" onClick={() => handleAddTask(day)}>
-                    <span className="add-icon">+</span>
-                    Add Task
-                  </button>
+                  
                 </div>
               );
             })}
 
-            {/* Archive column */}
+            {/* Habits Library (Archives) */}
             <div className="archive-column">
               <div className="column-header">
-                <h3>✅ Archive</h3>
-                <span className="archive-count">
-                  {Object.values(tasksByList)
-                    .flat()
-                    .filter((t) => t.status === "CLOSED").length} completed
-                </span>
+                <h3>🧩 Habits Library</h3>
+                <span className="archive-count">{habitsLibrary.length} habits</span>
               </div>
+
               <div className="archive-list">
-                {Object.entries(tasksByList)
-                  .flatMap(([day, list]) =>
-                    (list || [])
-                      .filter((t) => t.status === "CLOSED")
-                      .map((t) => ({ ...t, day }))
-                  )
-                  .map((t) => (
-                    <div key={t.id} className="archive-item">
-                      <span className="archive-check">✓</span>
+                {habitsLibrary.length === 0 ? (
+                  <div className="empty-state">
+                    <span className="empty-icon">✨</span>
+                    <p>Add habits you want to track</p>
+                  </div>
+                ) : (
+                  habitsLibrary.map((h) => (
+                    <div key={h.id} className="archive-item">
+                      <span className="archive-check">•</span>
                       <div className="archive-content">
-                        <span className="archive-title">{t.title}</span>
-                        <span className="archive-day">{t.day}</span>
+                        <span className="archive-title">{h.title}</span>
+                        <span className="archive-day">Auto added to Mon–Fri</span>
                       </div>
+
+                      <button
+                        className="delete-btn"
+                        onClick={() => handleDeleteHabitFromLibrary(h.id)}
+                        title="Remove habit"
+                      >
+                        ✖
+                      </button>
                     </div>
-                  ))}
+                  ))
+                )}
               </div>
+
+              <button className="add-btn" onClick={openAddHabitModal}>
+                <span className="add-icon">+</span>
+                Add Habit
+              </button>
             </div>
           </div>
 
-          {/* Chart Section */}
+          {/* Analytics */}
           <div className="analytics-section">
             <h2 className="section-title">
               <span className="title-icon">📊</span>
               Weekly Analytics
             </h2>
-            
+
             <div className="charts-grid">
-              {/* Area Chart - Task Trends */}
               <div className="chart-card large">
-                <h3 className="chart-title">Task Completion Trends</h3>
+                <h3 className="chart-title">Habit Completion Trends</h3>
                 <ResponsiveContainer width="100%" height={280}>
-                  <AreaChart
-                    data={chartData}
-                    margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-                  >
+                  <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id="colorCompleted" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
+                        <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                       </linearGradient>
                       <linearGradient id="colorPending" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
+                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
@@ -374,9 +321,8 @@ export default function TaskWeek() {
                 </ResponsiveContainer>
               </div>
 
-              {/* Pie Chart */}
               <div className="chart-card">
-                <h3 className="chart-title">Task Distribution</h3>
+                <h3 className="chart-title">Completion Distribution</h3>
                 <ResponsiveContainer width="100%" height={280}>
                   <PieChart>
                     <Pie
@@ -387,9 +333,7 @@ export default function TaskWeek() {
                       outerRadius={100}
                       dataKey="value"
                       labelLine={false}
-                      label={({ name, percent }) =>
-                        `${name} ${(percent * 100).toFixed(0)}%`
-                      }
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                     >
                       {pieData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
@@ -409,11 +353,12 @@ export default function TaskWeek() {
             </div>
           </div>
 
+          {/* Modal */}
           {showModal && (
             <AddTaskModal
-              day={selectedDay}
+              day={"Habit Library"}
               onClose={() => setShowModal(false)}
-              onSubmit={handleSubmitTask}
+              onSubmit={handleSubmitHabit}
             />
           )}
         </div>

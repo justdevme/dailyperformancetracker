@@ -16,6 +16,7 @@ return (
             Home
           </a>
         </li>
+
         <li>
           <a href="/focussession">
             <img src={focusIcon} alt="Focus" className="icon" />
@@ -29,6 +30,14 @@ return (
             Log Out
           </a>
         </li>
+
+        <li>
+          <a href="/weekgoals">
+            <img src={logoutIcon} alt="Logout" className="icon" />
+            Week Goals
+          </a>
+        </li>
+
       </ul>
     </div>
   );

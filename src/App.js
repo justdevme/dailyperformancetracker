@@ -5,6 +5,7 @@ import LoginPage from "./pages/LoginPage";
 import TaskWeek from "./pages/TaskWeek";
 import FocusSession from "./pages/FocusSession";
 import TaskDetail from "./pages/TaskDetail";
+import WeekGoals from "./pages/WeekGoals";
 
 function App() {
   return (
@@ -15,9 +16,12 @@ function App() {
         <Route path="/taskweek" element={<TaskWeek />} />
         <Route path="/focussession" element={<FocusSession />} />
         <Route path="/task/:listId/:taskId" element={<TaskDetail />} />
+        <Route path="/task/new" element={<TaskDetail />} />
+        <Route path="/weekgoals" element={<WeekGoals />} />
       </Routes>
     </BrowserRouter>
   );
 }
 
 export default App;
+
